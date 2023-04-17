@@ -1,0 +1,41 @@
+{
+    "os": "Windows-10-10.0.19044-SP0",
+    "python": "3.9.13",
+    "heartbeatAt": "2023-04-17T15:58:58.203156",
+    "startedAt": "2023-04-17T15:58:50.897735",
+    "docker": null,
+    "cuda": null,
+    "args": null,
+    "state": "running",
+    "program": "ffnn.ipynb",
+    "root": "C:/Users/Jonatan/OneDrive/Skrivebord/Skole/Skole/NTNU/8. Semester/Applied ML/PROJECT/INFO251-Project",
+    "git": {
+        "remote": "https://github.com/Jakkaps/INFO251-Project.git",
+        "commit": "7abb8164b26513f827a813ec45cb78f79c992708"
+    },
+    "email": "jonatanrisaasen@gmail.com",
+    "host": "DESKTOP-PN1V6GB",
+    "username": "Jonatan",
+    "executable": "C:\\Users\\Jonatan\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 1792.0,
+        "min": 0.0,
+        "max": 1992.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1792.0,
+            "min": 0.0,
+            "max": 1992.0
+        }
+    ],
+    "disk": {
+        "total": 475.71581649780273,
+        "used": 250.61197662353516
+    },
+    "memory": {
+        "total": 15.754158020019531
+    }
+}
