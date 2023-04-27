@@ -1,10 +1,12 @@
 import os
-import numpy as np
 from PIL import Image
-from torch.utils.data import Dataset
-import torchvision.transforms as transforms
+
+import torch
+from torchvision import transforms
 from torchvision.datasets import VisionDataset, FGVCAircraft
 from typing import Any, Callable, Optional, Tuple, Dict
+
+from mask_generator import MaskGenerator
 
 
 class FGVCAircraftAugmented(VisionDataset):
@@ -12,10 +14,10 @@ class FGVCAircraftAugmented(VisionDataset):
     A custom dataset class for the FGVC-Aircraft dataset where new images are created by applying augmentations.
 
     Attributes:
-    root: Root dir to save dataset to.
-    augmentations: Augmentation to create new images. List of name:torchvision.transforms.
-    tranform: Transform to apply to all images. Torch transform.
-    split: Split to use. One of 'train', 'val', 'test'.
+        root: Root dir to save dataset to.
+        augmentations: Augmentation to create new images. List of name:torchvision.transforms.
+        tranform: Transform to apply to all images. Torch transform.
+        split: Split to use. One of 'train', 'val', 'test'.
     """
 
     def __init__(
@@ -24,10 +26,25 @@ class FGVCAircraftAugmented(VisionDataset):
         augmentations: Dict[str, object] = None,
         transform: Optional[Callable] = None,
         split: str = "train",
+        number_of_mask_channels: int = 5
     ) -> None:
         super(FGVCAircraftAugmented, self).__init__(
             root=root, transform=transform
         )
+
+        self.number_of_mask_channels = number_of_mask_channels
+        self.mask_generator = None
+        if self.number_of_mask_channels > 0:
+            self.mask_generator = MaskGenerator()
+        mask_path = os.path.join(self.root, 'fgvc-aircraft-augmented', 'masks')
+        if not os.path.exists(mask_path):
+            os.makedirs(mask_path)
+        
+        # Needed to resize mask appropriately
+        for t in self.transform.transforms:
+            if isinstance(t, transforms.Resize):
+                self.resize_mask = transforms.Resize(t.size, antialias=True)
+                break
 
         _ = FGVCAircraft(root=root, download=True)
         folder_name = 'fgvc-aircraft-augmented'
@@ -83,6 +100,7 @@ class FGVCAircraftAugmented(VisionDataset):
         self.image_names = new_image_names
         self.data_dir = new_data_dir
 
+
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         image_name = self.image_names[index]
         label = self.image_labels[index]
@@ -92,8 +110,26 @@ class FGVCAircraftAugmented(VisionDataset):
         with open(image_file, "rb") as f:
             image = Image.open(f).convert("RGB")
         
+        # Generate mask if it does not exist yet
+        mask = None
+        if self.number_of_mask_channels > 0:
+            mask_path = os.path.join(self.root, 'fgvc-aircraft-augmented', 'masks', image_name.replace('.jpg', '.pt'))
+            mask_not_generated = not os.path.exists(mask_path)
+            if mask_not_generated:
+                mask = self.mask_generator(image)
+                torch.save(mask, mask_path)
+            else:
+                mask = torch.load(mask_path)
+
         if self.transform is not None:
             image = self.transform(image)
+
+        # Add mask to image as channels
+        if not mask is None: 
+            if not self.resize_mask is None:
+                mask = self.resize_mask(mask)
+            
+            image = torch.cat((image, mask[:self.number_of_mask_channels]), dim=0)
 
         return image, label
 
