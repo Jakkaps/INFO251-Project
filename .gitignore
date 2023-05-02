@@ -130,3 +130,7 @@ dmypy.json
 
 # Datasets
 **/data
+
+# Models
+**/models
+.DS_Store
