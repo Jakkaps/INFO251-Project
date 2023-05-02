@@ -134,3 +134,4 @@ dmypy.json
 # Models
 **/models
 .DS_Store
+/wandb
