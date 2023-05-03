@@ -5,7 +5,6 @@ import torch
 from torchvision import transforms
 from torchvision.datasets import VisionDataset, FGVCAircraft
 from typing import Any, Callable, Optional, Tuple, Dict
-
 from mask_generator import MaskGenerator
 
 
@@ -23,13 +22,14 @@ class FGVCAircraftAugmented(VisionDataset):
     def __init__(
         self,
         root: str,
-        augmentations: Dict[str, object] = None,
+        augmentations: Dict[str, object] = {},
         transform: Optional[Callable] = None,
         split: str = "train",
-        number_of_mask_channels: int = 5
+        number_of_mask_channels: int = 0
     ) -> None:
         super(FGVCAircraftAugmented, self).__init__(
-            root=root, transform=transform
+            root=root,
+            transform=transform
         )
 
         self.number_of_mask_channels = number_of_mask_channels
@@ -45,8 +45,8 @@ class FGVCAircraftAugmented(VisionDataset):
             if isinstance(t, transforms.Resize):
                 self.resize_mask = transforms.Resize(t.size, antialias=True)
                 break
-
-        _ = FGVCAircraft(root=root, download=True)
+        
+        _ = FGVCAircraft(root=root, split=split, download=True)
         folder_name = 'fgvc-aircraft-augmented'
         data_dir = os.path.join(self.root, folder_name, split)
         already_exists = os.path.exists(data_dir)
@@ -55,33 +55,44 @@ class FGVCAircraftAugmented(VisionDataset):
             os.makedirs(data_dir)
             os.makedirs(os.path.join(data_dir, 'images'))
 
+
+        # Load classes to convert between labels and indeces
+        orig_class_file = os.path.join(
+            self.root, "fgvc-aircraft-2013b", "data", "variants.txt"
+        )
+        with open(orig_class_file, "r") as f:
+            self.classes = [line.strip() for line in f]
+        self.label_to_idx = dict(zip(self.classes, range(len(self.classes))))
+
         # Load FGVC-Aircraft dataset and save augmented version to disk
-        orig_annotations_file = os.path.join(
+        orig_labels_file = os.path.join(
             self.root, "fgvc-aircraft-2013b", "data", f"images_variant_{split}.txt"
         )
-        with open(orig_annotations_file, "r") as f:
-            lines = f.readlines()[1:]
 
+        orig_data_dir = os.path.join(self.root, "fgvc-aircraft-2013b", "data", "images")
         orig_image_names = []
         orig_labels = []
 
-        for line in lines:
-            fields = line.strip().split(" ")
-            orig_image_names.append(fields[0] + '.jpg')
-            orig_labels.append(fields[1])
+        with open(orig_labels_file, "r") as f:
+          lines = f.readlines()[1:]
+          for line in lines:
+            image_name, label_name = line.strip().split(" ", 1)
+            orig_image_names.append(f"{image_name}.jpg")
+            orig_labels.append(self.label_to_idx[label_name])
 
-        orig_data_dir = os.path.join(self.root, "fgvc-aircraft-2013b", "data", "images")
-        
         new_data_dir = os.path.join(self.root, folder_name, split, "images")
         new_image_names = []
         new_images_labels = []
 
         # Create augmented dataset
         for image_name in orig_image_names:
+
             image_file = os.path.join(orig_data_dir, image_name)
             image = Image.open(image_file)
             
             # Add original image to dataset
+            new_image_names.append(image_name)
+            new_images_labels.append(orig_labels[orig_image_names.index(image_name)])
             new_image_file = os.path.join(new_data_dir, image_name)
             if not already_exists:
                 image.save(new_image_file)

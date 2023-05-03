@@ -26,4 +26,4 @@ The project contains 3 parts, each with it's own script to run
 
 - `train.sh` - Runs a full training run using the NTS model.
 - `test.sh` - Runs a suite of tests of the NTS model on the test set.
-- `analysis.sh` - Runs a more thourough error analysis on the trained NTS model. Refer to the submitted project report for a full exploration of this analysis.
+- `data_augmentations.sh` - Runs analysis on how the different data augmentations affect performance of the NTS model.
