@@ -29,7 +29,7 @@ class NTSModel(nn.Module):
 
     _, edge_anchors, _ = generate_default_anchor_maps(input_shape=(self.image_height, self.image_width))
     self.pad_side = self.image_width
-    self.edge_anchors = (edge_anchors + self.pad_side).astype(np.int)
+    self.edge_anchors = (edge_anchors + self.pad_side).astype(int)
 
     # Setup navigator
     self.navigator = Navigator()
@@ -45,14 +45,14 @@ class NTSModel(nn.Module):
         np.concatenate((val.reshape(-1, 1), self.edge_anchors.copy(), np.arange(0, len(val)).reshape(-1, 1)), axis=1) for val in scores.data.cpu().numpy()
     ]
     top_n_cdds = np.array([hard_nms(x, topn=self.top_n, iou_thresh=0.25) for x in cdds])
-    top_n_idxs = torch.from_numpy(top_n_cdds[:, :, -1].astype(np.int64)).cuda()
+    top_n_idxs = torch.from_numpy(top_n_cdds[:, :, -1].astype(np.int64)).to(self.device)
     top_n_proba = torch.gather(scores, dim=1, index=top_n_idxs)
 
     # Recreate images
-    part_imgs = torch.zeros([batch_size, self.top_n, channels_in, img_h, img_w]).cuda()
+    part_imgs = torch.zeros([batch_size, self.top_n, channels_in, img_h, img_w]).to(self.device)
     for i in range(batch_size):
       for j in range(self.top_n):
-        [y0, x0, y1, x1] = top_n_cdds[i][j, 1:5].astype(np.int)
+        [y0, x0, y1, x1] = top_n_cdds[i][j, 1:5].astype(int)
         part_imgs[i:i + 1, j] = F.interpolate(x_pad[i:i + 1, :, y0:y1, x0:x1], size=(img_h, img_w), mode='bilinear', align_corners=True)
     part_imgs = part_imgs.view(batch_size * self.top_n, channels_in, img_h, img_w)
 

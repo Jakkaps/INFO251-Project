@@ -25,5 +25,12 @@ In addition, to save on time for the reviewer, it also downloads all required mo
 The project contains 3 parts, each with it's own script to run
 
 - `train.sh` - Runs a full training run using the NTS model.
-- `test.sh` - Runs a suite of tests of the NTS model on the test set.
-- `data_augmentations.sh` - Runs analysis on how the different data augmentations affect performance of the NTS model.
+- `test.sh` - Runs a suite of tests of the NTS model on the test set. Results are shown in popups.
+- `hyperparam_tuning.sh` - Runs a full run of hyperparameter tuning.
+- `data_augmentations.sh` - Runs analysis on how the different data augmentations affect performance of the NTS model. Results are shown in popups. Currently, the training of the different models is commented out, so info from previous runs will be used.
+
+To run any of the scripts, use
+
+```bash
+$ ./scipt_name.sh
+```
