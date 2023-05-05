@@ -1,0 +1,15 @@
+{
+    "proposal_num": 4,
+    "concat_lr": 0.017421479104985847,
+    "resnet_lr": 0.023663449413508245,
+    "partcls_lr": 0.021992845516824015,
+    "navigator_lr": 0.008795790041545189,
+    "concat_momentum": 0.8000000000000003,
+    "resnet_momentum": 0.8000000000000003,
+    "partcls_momentum": 0.6000000000000001,
+    "navigator_momentum": 0.7000000000000002,
+    "concat_weight_decay": 0.009226112294479522,
+    "resnet_weight_decay": 0.00246484552746257,
+    "partcls_weight_decay": 0.005071394828965506,
+    "navigator_weight_decay": 0.001719879259014504
+}
