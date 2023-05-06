@@ -22,15 +22,14 @@ In addition, to save on time for the reviewer, it also downloads all required mo
 
 ## Usage
 
-The project contains 3 parts, each with it's own script to run
-
-- `train.sh` - Runs a full training run using the NTS model.
-- `test.sh` - Runs a suite of tests of the NTS model on the test set. Results are shown in popups.
-- `hyperparam_tuning.sh` - Runs a full run of hyperparameter tuning.
-- `data_augmentations.sh` - Runs analysis on how the different data augmentations affect performance of the NTS model. Results are shown in popups. Currently, the training of the different models is commented out, so info from previous runs will be used.
-
-To run any of the scripts, use
-
-```bash
-$ ./scipt_name.sh
-```
+The project consists of 4 parts:
+- `train`: Runs a full training run using the NTS model.
+  - In order to train the model, simply run the notebook `train.ipynb`. This will save the weights of the best epoch. Hyperparameters can be configured by editing the file `hyperparameters.json`
+- `test`: Runs a suite of tests of the NTS model on the test set and displays how the model performed in accordance to different performance metrics.
+  - For testing the model on the test set, run the cells in the notebook `test.ipynb`. *NOTE*: the model have to be trained first as the test notebook will use the weights output from the `train.ipynb` notebook.
+- `tuning`: The hyperparameters of the model was tuned using the notebook `bayesian_sweep.ipynb` as a template, which allowed for different hyperparameter-configurations to be evaluated through **wandb (weights and biases)**
+- `data_augmentations`: Runs analysis on how the different data augmentations affect performance of the NTS model. Results are shown in popups.
+  - To run the data_augmentation script, use
+    ```bash
+    $ ./data_augmentations.sh
+    ```
